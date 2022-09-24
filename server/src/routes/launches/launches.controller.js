@@ -12,7 +12,7 @@ function httpAddNewLaunch(req, res) {
     !launch.mission ||
     !launch.rocket ||
     !launch.launchDate ||
-    !launch.destination
+    !launch.target
   ) {
     //400 status - Bad Request - something is invalid
     return res.status(400).json({
