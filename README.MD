@@ -1,3 +1,14 @@
+# App Preview
+
+![MainPage](./client/public/img/main.png)
+![UpcomingLaunches](./client/public/img/upcoming.png)
+![HistoryLaunches](./client/public/img/history.png)
+
+# Architecture App Preview
+
+![AppicationArch](./client/public/img/NASAMissionControlArchiteture.jpeg)
+
+
 # NASA Mission Control Project
 
  App built with knowledge acquired with the course: [Complete Node.js Developer: Zero to Mastery](https://academy.zerotomastery.io/p/learn-node-js?affcode=441520_1jw4f2ay).
