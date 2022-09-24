@@ -21,7 +21,8 @@ app.use(express.static(path.join(__dirname, "..", "public")));
 app.use(planetsRouter);
 app.use(launchesRouter);
 
-app.get("/", (req, res) => {
+//added * to be possible get endpoints from front-end
+app.get("/*", (req, res) => {
   res.sendFile(path.join(__dirname, "..", "public", "index.html"));
 });
 
