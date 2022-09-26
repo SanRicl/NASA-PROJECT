@@ -3,9 +3,12 @@ const app = express();
 const cors = require("cors");
 const path = require("path");
 const morgan = require("morgan");
+require('dotenv').config()
 
 const planetsRouter = require("./routes/planets/planets.router");
 const launchesRouter = require("./routes/launches/launches.router");
+
+
 
 app.use(
   cors({
