@@ -21,7 +21,10 @@
     "git-commit-msg-linter": "^4.2.1"
   },
   "dependencies": {
+    "client": "^0.0.1",
     "dotenv": "^16.0.2",
-    "mongoose": "^6.6.1"
+    "mongoose": "^6.6.1",
+    "prefix": "^1.0.0",
+    "server": "^1.0.37"
   }
 }
