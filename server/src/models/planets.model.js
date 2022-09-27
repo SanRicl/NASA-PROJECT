@@ -42,6 +42,7 @@ function loadPlanetsData() {
 }
 
 async function getAllPlanets() {
+  //it will find all the planets inside the document
   return await planets.find({});
 }
 
