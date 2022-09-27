@@ -4,8 +4,6 @@ const fs = require("fs");
 
 const planets = require("./planets.mongo");
 
-const habitablePlanet = [];
-
 function isHabitablePlanet(planet) {
   return (
     planet["koi_disposition"] === "CONFIRMED" &&
@@ -28,18 +26,16 @@ function loadPlanetsData() {
       )
       .on("data", async (data) => {
         if (isHabitablePlanet(data)) {
-          // TODO: replace below create with insert + update = upsert
-          // await planets.create({
-          //   keplerName: data.kepler_name,
-          // })
+          savePlantet(data);
         }
       })
       .on("error", (err) => {
         console.log(err);
         reject(err);
       })
-      .on("end", () => {
-        console.log(`${habitablePlanet.length} habitable planets founds`);
+      .on("end", async () => {
+        const countPlanetFounds = (await getAllPlanets()).length;
+        console.log(`${countPlanetFounds} habitable planets founds`);
         resolve();
       });
   });
@@ -47,6 +43,28 @@ function loadPlanetsData() {
 
 async function getAllPlanets() {
   return await planets.find({});
+}
+
+async function savePlantet(planet) {
+  try {
+    await planets.updateOne(
+      {
+        // insert + update = upsert
+        //first case - finding all the planets that matches the current planet
+        keplerName: planet.kepler_name,
+      },
+      {
+        //second case - if does exists, wont change nothing
+        keplerName: planet.kepler_name,
+      },
+      {
+        //third case - if exists, add the new planet
+        upsert: true,
+      }
+    );
+  } catch (error) {
+    console.error(`Could not save planet ${planet}`);
+  }
 }
 
 module.exports = {
