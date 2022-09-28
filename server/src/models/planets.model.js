@@ -42,8 +42,15 @@ function loadPlanetsData() {
 }
 
 async function getAllPlanets() {
-  //it will find all the planets inside the document
-  return await planets.find({});
+  //it will filter and find all the planets inside the document
+  return await planets.find(
+    {},
+    {
+      //excluding these properties from request
+      '__v': 0,
+      '_id': 0,
+    }
+  );
 }
 
 async function savePlantet(planet) {
