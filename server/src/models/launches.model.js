@@ -1,8 +1,8 @@
 const launchesDatabase = require("./launches.mongo");
+const planets = require("./planets.mongo");
 
+const DEFAULT_FLIGHT_NUMBER = 100;
 const launches = new Map();
-
-let latestFlightNumber = 100;
 
 const launch = {
   flightNumber: 100,
@@ -21,17 +21,33 @@ function existsLaunchWithId(launchId) {
   return launches.has(launchId);
 }
 
+async function getLatestFlightNumber() {
+  //findOne it will return the first document if theres more than one thats return. Then, it will sort in descending order.
+  const latestLaunch = await launchesDatabase.findOne().sort("-flightNumber");
+  if (!latestLaunch) return DEFAULT_FLIGHT_NUMBER;
+  return latestLaunch.flightNumber;
+}
+
 async function getAllLaunches() {
   return await launchesDatabase.find(
     {},
     {
-      '__v': 0,
-      '_id': 0,
+      __v: 0,
+      _id: 0,
     }
   );
 }
 
 async function saveLaunch(launch) {
+  //verifying if the planet that is beeing passed is equal of the planet that exists in the database.
+  const planet = await planets.findOne({
+    keplerName: launch.target,
+  });
+
+  if (!planet) {
+    throw new Error("No matching planet found.");
+  }
+
   await launchesDatabase.updateOne(
     //if the flightNumber exists, will update. If doesnt, it will create a new one with the data corresponding "launch" object
     {
@@ -44,20 +60,19 @@ async function saveLaunch(launch) {
   );
 }
 
-//addNewLauch will receive the data from the client, then will take the latestFlightNumber, that was setted by default "100" and increase +1. This will be the key or the number of the flight that will indetify the actual flight that is beeing added. Than it will be setted with the latestFlightNumber lauches.set() with the informations bellow inside the function. Success, Upcoming and customers values, will always be setted by default. Only it will be added the informations from the input that corresponds to the fields: mission, rocket, launchDate and destination.
+async function scheduleNewLaunch(launch) {
+  const newFlightNumber = (await getLatestFlightNumber()) + 1;
 
-function addNewLaunch(launch) {
-  latestFlightNumber++;
-  launches.set(
-    latestFlightNumber,
-    Object.assign(launch, {
-      success: true,
-      upcoming: true,
-      customers: ["Zero to Mastery", "NASA"],
-      flightNumber: latestFlightNumber,
-    })
-  );
+  const newLaunch = Object.assign(launch, {
+    success: true,
+    upcoming: true,
+    customers: ["Zero to Mastery", "NASA"],
+    flightNumber: newFlightNumber,
+  });
+
+  await saveLaunch(newLaunch);
 }
+
 function abortLaunchById(launchId) {
   const aborted = launches.get(launchId);
 
@@ -70,6 +85,6 @@ function abortLaunchById(launchId) {
 module.exports = {
   existsLaunchWithId,
   getAllLaunches,
-  addNewLaunch,
+  scheduleNewLaunch,
   abortLaunchById,
 };
