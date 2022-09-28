@@ -1,4 +1,5 @@
-// const launches = require("./launches.mongo");
+const launchesDatabase = require("./launches.mongo");
+
 const launches = new Map();
 
 let latestFlightNumber = 100;
@@ -14,7 +15,7 @@ const launch = {
   success: true,
 };
 
-launches.set(launch.flightNumber, launch);
+saveLaunch(launch);
 
 function existsLaunchWithId(launchId) {
   return launches.has(launchId);
@@ -22,6 +23,19 @@ function existsLaunchWithId(launchId) {
 
 function getAllLaunches() {
   return Array.from(launches.values());
+}
+
+async function saveLaunch(launch) {
+  await launchesDatabase.updateOne(
+    //if the flightNumber exists, will update. If doesnt, it will create a new one with the data corresponding "launch" object
+    {
+      flightNumber: launch.flightNumber,
+    },
+    launch,
+    {
+      upsert: true,
+    }
+  );
 }
 
 //addNewLauch will receive the data from the client, then will take the latestFlightNumber, that was setted by default "100" and increase +1. This will be the key or the number of the flight that will indetify the actual flight that is beeing added. Than it will be setted with the latestFlightNumber lauches.set() with the informations bellow inside the function. Success, Upcoming and customers values, will always be setted by default. Only it will be added the informations from the input that corresponds to the fields: mission, rocket, launchDate and destination.
