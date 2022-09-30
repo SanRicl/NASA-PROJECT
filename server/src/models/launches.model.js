@@ -1,20 +1,47 @@
+const axios = require("axios");
 const launchesDatabase = require("./launches.mongo");
 const planets = require("./planets.mongo");
 
 const DEFAULT_FLIGHT_NUMBER = 100;
 
 const launch = {
-  flightNumber: 100,
-  mission: "Kepler Exploration X",
-  rocket: "Explores IS1",
-  lauchDate: new Date("December 27, 2030"),
-  target: "Kepler-442 b",
-  customers: ["NASA", "ZTM"],
-  upcoming: true,
-  success: true,
+  flightNumber: 100, //flight_number
+  mission: "Kepler Exploration X", //name
+  rocket: "Explores IS1", //rocket.name
+  lauchDate: new Date("December 27, 2030"), //date_local
+  target: "Kepler-442 b", //not applicable
+  customers: ["NASA", "ZTM"], //payload .customers for each payload
+  upcoming: true, //upcoming
+  success: true, //success
 };
 
 saveLaunch(launch);
+
+const SPACEX_API_URL = "https://api.spacexdata.com/v4/launches/query";
+
+async function loadLaunchData() {
+  console.log("Downloading data from SpaceX Data API");
+ const response =  await axios.post(SPACEX_API_URL, {
+    query: {},
+    options: {
+      populate: [
+        {
+          path: "rocket",
+          select: {
+            //1 means true: I want the data, 0 means false.
+            name: 1,
+          },
+        },
+        {
+          path: "payloads",
+          select: {
+            customers: 1,
+          },
+        },
+      ],
+    },
+  });
+}
 
 async function existsLaunchWithId(launchId) {
   return await launchesDatabase.findOne({
@@ -85,7 +112,7 @@ async function abortLaunchById(launchId) {
     }
   );
 
-  return aborted.modifiedCount === 1
+  return aborted.modifiedCount === 1;
 }
 
 module.exports = {
@@ -93,4 +120,5 @@ module.exports = {
   getAllLaunches,
   scheduleNewLaunch,
   abortLaunchById,
+  loadLaunchData,
 };
