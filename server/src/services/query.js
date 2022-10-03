@@ -1,5 +1,5 @@
-const DEFAULT_PAGE_NUMBER = 0;
-const DEFAULT_PAGE_LIMIT = 1;
+const DEFAULT_PAGE_NUMBER = 1;
+const DEFAULT_PAGE_LIMIT = 0;
 
 function getPagination(query) {
   //Definying all query as string and positive number.
