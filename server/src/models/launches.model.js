@@ -43,6 +43,11 @@ async function populateLaunches() {
     },
   });
 
+  if (response.status !== 200) {
+    console.log("Problem downloading lauch data.");
+    throw new Error("Launch data download failed");
+  }
+
   //data result from the axios request
   const launchDocs = response.data.docs;
 
@@ -66,6 +71,7 @@ async function populateLaunches() {
     console.log(`${launch.flightNumber} - ${launch.mission}`);
 
     //TODO: Populate launches collection
+    await saveLaunch(launch);
   }
 }
 
@@ -79,8 +85,8 @@ async function loadLaunchData() {
   if (firstLaunch) {
     console.log("Launch data already loaded!");
     return;
-  }else{
-    await populateLaunches()
+  } else {
+    await populateLaunches();
   }
 }
 
@@ -112,15 +118,6 @@ async function getAllLaunches() {
 }
 
 async function saveLaunch(launch) {
-  //verifying if the planet that is beeing passed is equal of the planet that exists in the database.
-  const planet = await planets.findOne({
-    keplerName: launch.target,
-  });
-
-  if (!planet) {
-    throw new Error("No matching planet found.");
-  }
-
   await launchesDatabase.updateOne(
     //if the flightNumber exists, will update. If doesnt, it will create a new one with the data corresponding "launch" object
     {
@@ -134,6 +131,15 @@ async function saveLaunch(launch) {
 }
 
 async function scheduleNewLaunch(launch) {
+  //verifying if the planet that is beeing passed is equal of the planet that exists in the database.
+  const planet = await planets.findOne({
+    keplerName: launch.target,
+  });
+
+  if (!planet) {
+    throw new Error("No matching planet found.");
+  }
+
   const newFlightNumber = (await getLatestFlightNumber()) + 1;
 
   const newLaunch = Object.assign(launch, {
